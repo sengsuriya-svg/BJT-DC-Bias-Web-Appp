@@ -3,14 +3,27 @@
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>BJT DC Bias Web Application</title>
+    <title>BJT DC Bias Calculator - Lab 02</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
 </head>
 <body>
     <div class="container">
         <h1>BJT DC Bias Calculator</h1>
-        <p class="subtitle">ระบบคำนวณจุดทำงาน (Operating Point) สำหรับวงจร Voltage Divider</p>
+        <p class="subtitle">ระบบคำนวณจุดทำงาน (Operating Point) สำหรับวงจร Voltage Divider Bias</p>
         
+        <!-- ส่วนแสดงรูปภาพวงจร -->
+        <div class="circuit-container">
+            <h3>ไดอะแกรมวงจร (Voltage Divider Bias)</h3>
+            <img src="{{ url_for('static', filename='bjt_circuit.png') }}" 
+                 alt="BJT Voltage Divider Circuit Diagram" 
+                 class="circuit-img"
+                 onerror="this.style.display='none'; document.getElementById('circuit-fallback').style.display='block';">
+            
+            <div id="circuit-fallback" class="circuit-fallback" style="display:none;">
+                <p>💡 <em>อัปโหลดรูปภาพวงจรชื่อ <strong>bjt_circuit.png</strong> ไว้ในโฟลเดอร์ <strong>static</strong> เพื่อแสดงรูปวงจรที่นี่</em></p>
+            </div>
+        </div>
+
         <form method="POST" class="calc-form">
             <div class="input-group">
                 <label>VCC (V):</label>
