@@ -9,60 +9,47 @@
 </head>
 <body>
     <header class="main-header">
-        <div class="header-left">
-            <i class="fas fa-microchip fa-2x logo-icon"></i>
-            <div>
-                <h1>Lab 02: BJT DC Bias Web App</h1>
-                <p>ENG29 2121 - Common Emitter (Voltage Divider Bias)</p>
-            </div>
-        </div>
-        <div class="header-right">
-            <div class="course-info">
-                <i class="fas fa-code fa-lg"></i>
-                <div>
-                    <p>Computer Programming for</p>
-                    <p>Electrical Engineers</p>
-                </div>
-            </div>
+        <div class="header-content">
+            <h1>Lab 02: BJT DC Bias Web App</h1>
+            <p>ENG29 2121 - Common Emitter (Voltage Divider Bias)</p>
         </div>
     </header>
 
     <main class="app-container">
-        <!-- Column 1: Input Parameters (ช่องว่างเปล่าให้ผู้ใช้พิมพ์เอง) -->
+        <!-- Column 1: Input Parameters -->
         <section class="card input-card">
             <div class="card-header">
                 <i class="fas fa-cogs"></i>
                 <h2>Input Parameters</h2>
             </div>
-            <form method="POST">
-                <div class="input-grid">
-                    <label>$V_{CC}$ (Supply Voltage)</label>
+            <form method="POST" class="form-vertical">
+                <div class="form-group">
+                    <label>V<sub>CC</sub> (Supply Voltage, V)</label>
                     <input type="number" step="any" name="vcc" placeholder="เช่น 12" required>
-                    <span class="unit">V</span>
-
-                    <label>$R_1$ (Upper Divider)</label>
+                </div>
+                <div class="form-group">
+                    <label>R<sub>1</sub> (Upper Divider, k&Omega;)</label>
                     <input type="number" step="any" name="r1" placeholder="เช่น 100" required>
-                    <span class="unit">kΩ</span>
-
-                    <label>$R_2$ (Lower Divider)</label>
+                </div>
+                <div class="form-group">
+                    <label>R<sub>2</sub> (Lower Divider, k&Omega;)</label>
                     <input type="number" step="any" name="r2" placeholder="เช่น 22" required>
-                    <span class="unit">kΩ</span>
-
-                    <label>$R_C$ (Collector Resistor)</label>
+                </div>
+                <div class="form-group">
+                    <label>R<sub>C</sub> (Collector Resistor, k&Omega;)</label>
                     <input type="number" step="any" name="rc" placeholder="เช่น 2.2" required>
-                    <span class="unit">kΩ</span>
-
-                    <label>$R_E$ (Emitter Resistor)</label>
+                </div>
+                <div class="form-group">
+                    <label>R<sub>E</sub> (Emitter Resistor, k&Omega;)</label>
                     <input type="number" step="any" name="re" placeholder="เช่น 1.0" required>
-                    <span class="unit">kΩ</span>
-
-                    <label>$β$ (Current Gain)</label>
+                </div>
+                <div class="form-group">
+                    <label>&beta; (Current Gain)</label>
                     <input type="number" step="any" name="beta" placeholder="เช่น 100" required>
-                    <span class="unit">-</span>
-
-                    <label>$V_{BE}$ (Base-Emitter Voltage)</label>
+                </div>
+                <div class="form-group">
+                    <label>V<sub>BE</sub> (Base-Emitter Voltage, V)</label>
                     <input type="number" step="any" name="vbe" placeholder="เช่น 0.7" required>
-                    <span class="unit">V</span>
                 </div>
                 <button type="submit" class="btn-calc">
                     <i class="fas fa-calculator"></i> Calculate DC Bias
@@ -74,7 +61,7 @@
         <section class="card circuit-card">
             <div class="card-header">
                 <i class="fas fa-project-diagram"></i>
-                <h2>Circuit: Common-Emitter Amplifier</h2>
+                <h2>Circuit Diagram</h2>
             </div>
             <div class="circuit-diagram-container">
                 <img src="{{ url_for('static', filename='bjt_circuit.png') }}" alt="BJT Circuit Diagram" class="circuit-img">
@@ -88,42 +75,29 @@
                 <h2>DC Bias Results</h2>
             </div>
             
-            {% if results and not results.error %}
-            <div class="results-list">
-                <div class="result-item"><span>$V_B$</span><strong>{{ results.vb }} V</strong></div>
-                <div class="result-item"><span>$V_E$</span><strong>{{ results.ve }} V</strong></div>
-                <div class="result-item"><span>$V_C$</span><strong>{{ results.vc }} V</strong></div>
-                <div class="result-item"><span>$V_{CE}$</span><strong>{{ results.vce }} V</strong></div>
-                <div class="result-item"><span>$I_B$</span><strong>{{ results.ib }} µA</strong></div>
-                <div class="result-item"><span>$I_C$</span><strong>{{ results.ic }} mA</strong></div>
-                <div class="result-item"><span>$I_E$</span><strong>{{ results.ie }} mA</strong></div>
-            </div>
+            <div class="results-body">
+                {% if results and not results.error %}
+                <div class="results-list">
+                    <div class="result-item"><span>V<sub>B</sub></span><strong>{{ results.vb }} V</strong></div>
+                    <div class="result-item"><span>V<sub>E</sub></span><strong>{{ results.ve }} V</strong></div>
+                    <div class="result-item"><span>V<sub>C</sub></span><strong>{{ results.vc }} V</strong></div>
+                    <div class="result-item"><span>V<sub>CE</sub></span><strong>{{ results.vce }} V</strong></div>
+                    <div class="result-item"><span>I<sub>B</sub></span><strong>{{ results.ib }} µA</strong></div>
+                    <div class="result-item"><span>I<sub>C</sub></span><strong>{{ results.ic }} mA</strong></div>
+                    <div class="result-item"><span>I<sub>E</sub></span><strong>{{ results.ie }} mA</strong></div>
+                </div>
 
-            <div class="status-box {{ 'status-ok' if results.region == 'Active' else 'status-warning' }}">
-                <div class="status-icon">
-                    <i class="fas {{ 'fa-check-circle' if results.region == 'Active' else 'fa-exclamation-triangle' }}"></i>
+                <div class="status-box {{ 'status-ok' if results.region == 'Active' else 'status-warning' }}">
+                    <strong>{{ results.region }} region OK</strong>
+                    <p>V<sub>CE</sub> = {{ results.vce }} V > 0.2 V</p>
                 </div>
-                <div>
-                    <strong>{{ results.region }} region approximation OK</strong>
-                    <p>$V_{CE} = {{ results.vce }} V > 0.2 V$ (transistor in {{ results.region|lower }} region)</p>
-                </div>
+                {% elif results and results.error %}
+                    <p class="error-msg">{{ results.error }}</p>
+                {% else %}
+                    <p class="placeholder-text">กรอกข้อมูลด้านซ้ายแล้วกดคำนวณ</p>
+                {% endif %}
             </div>
-            {% elif results and results.error %}
-                <p class="error-msg">{{ results.error }}</p>
-            {% else %}
-                <p class="placeholder-text">กรอกข้อมูลทางด้านซ้ายแล้วกดคำนวณ</p>
-            {% endif %}
         </section>
     </main>
-
-    <footer class="main-footer">
-        <div class="footer-card">
-            <i class="fas fa-bullseye fa-2x footer-icon"></i>
-            <div>
-                <h3>Week 2 Goal</h3>
-                <p>Rough target for this lab: Build a Flask web app that takes the circuit parameters, computes the BJT DC bias ($V_B, V_E, V_C, V_{CE}, I_B, I_C, I_E$) for a common-emitter amplifier with voltage-divider bias, and displays the results.</p>
-            </div>
-        </div>
-    </footer>
 </body>
 </html>
