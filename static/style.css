@@ -1,27 +1,168 @@
-/* สไตล์สำหรับกรอบรูปภาพวงจร */
-.circuit-container {
-    background: #f8f9fa;
-    border: 1px dashed #cbd5e1;
+body {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    background-color: #f4f6f9;
+    color: #333;
+    margin: 0;
+    padding: 10px;
+}
+
+.main-header {
+    background: #fff;
+    padding: 15px;
     border-radius: 8px;
+    margin-bottom: 15px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+    text-align: center;
+}
+
+.main-header h1 {
+    font-size: 18px;
+    color: #1e3a8a;
+    margin: 0 0 5px 0;
+}
+
+.main-header p {
+    font-size: 12px;
+    color: #666;
+    margin: 0;
+}
+
+/* จัดเลย์เอาต์มือถือ: เรียงเป็นแถวลงมาทีละการ์ด ไม่ให้เบียดกัน */
+.app-container {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+}
+
+.card {
+    background: #fff;
+    border-radius: 8px;
+    border: 1px solid #e5e7eb;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+    overflow: hidden;
+}
+
+.card-header {
+    background: #f8fafc;
+    padding: 12px 15px;
+    border-bottom: 1px solid #e5e7eb;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    color: #2563eb;
+    font-size: 14px;
+}
+
+.card-header h2 {
+    font-size: 15px;
+    margin: 0;
+    color: #1e3a8a;
+}
+
+/* ฟอร์มกรอกข้อมูลแบบแนวตั้ง ใช้ง่ายบนมือถือ */
+.form-vertical {
+    padding: 15px;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.form-group {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
+.form-group label {
+    font-size: 13px;
+    font-weight: 600;
+    color: #374151;
+}
+
+.form-group input {
+    padding: 10px;
+    border: 1px solid #d1d5db;
+    border-radius: 6px;
+    font-size: 14px;
+    width: 100%;
+    box-sizing: border-box;
+}
+
+.btn-calc {
+    background-color: #2563eb;
+    color: white;
+    border: none;
+    padding: 12px;
+    border-radius: 6px;
+    font-size: 15px;
+    font-weight: bold;
+    cursor: pointer;
+    margin-top: 5px;
+}
+
+.btn-calc:hover {
+    background-color: #1d4ed8;
+}
+
+/* ส่วนรูปวงจร */
+.circuit-diagram-container {
     padding: 15px;
     text-align: center;
-    margin-bottom: 25px;
+    background: #fff;
 }
-.circuit-container h3 {
-    font-size: 15px;
-    color: #34495e;
-    margin-top: 0;
-    margin-bottom: 10px;
-}
+
 .circuit-img {
     max-width: 100%;
     height: auto;
-    max-height: 250px;
-    border-radius: 6px;
-    box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+    border-radius: 4px;
 }
-.circuit-fallback {
-    color: #7f8c8d;
+
+/* ผลลัพธ์ */
+.results-body {
+    padding: 15px;
+}
+
+.results-list {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.result-item {
+    display: flex;
+    justify-content: space-between;
+    padding: 8px 0;
+    border-bottom: 1px solid #f3f4f6;
+    font-size: 14px;
+}
+
+.result-item strong {
+    color: #111827;
+}
+
+.status-box {
+    margin-top: 15px;
+    padding: 12px;
+    border-radius: 6px;
+    background: #ecfdf5;
+    color: #065f46;
     font-size: 13px;
-    padding: 10px;
+    border: 1px solid #a7f3d0;
+}
+
+.status-box p {
+    margin: 3px 0 0 0;
+    font-size: 12px;
+}
+
+.placeholder-text, .error-msg {
+    text-align: center;
+    color: #6b7280;
+    font-size: 13px;
+    margin: 20px 0;
+}
+
+.error-msg {
+    color: #dc2626;
+    font-weight: bold;
 }
