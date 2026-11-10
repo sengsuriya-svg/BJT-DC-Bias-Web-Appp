@@ -16,7 +16,7 @@
     </header>
 
     <main class="app-container">
-        <!-- Column 1: Input Parameters -->
+        <!-- Input Form -->
         <section class="card input-card">
             <div class="card-header">
                 <i class="fas fa-cogs"></i>
@@ -24,40 +24,84 @@
             </div>
             <form method="POST" class="form-vertical">
                 <div class="form-group">
-                    <label>V<sub>CC</sub> (Supply Voltage, V)</label>
-                    <input type="number" step="any" name="vcc" placeholder="เช่น 12" required>
+                    <label>V<sub>CC</sub> (Supply Voltage)</label>
+                    <div class="input-with-unit">
+                        <input type="number" step="any" name="vcc" placeholder="12" required>
+                        <span class="static-unit">V</span>
+                    </div>
                 </div>
+
                 <div class="form-group">
-                    <label>R<sub>1</sub> (Upper Divider, k&Omega;)</label>
-                    <input type="number" step="any" name="r1" placeholder="เช่น 100" required>
+                    <label>R<sub>1</sub> (Upper Divider)</label>
+                    <div class="input-with-unit">
+                        <input type="number" step="any" name="r1" placeholder="100" required>
+                        <select name="r1_unit">
+                            <option value="ohm">&Omega;</option>
+                            <option value="kohm" selected>k&Omega;</option>
+                            <option value="mohm">M&Omega;</option>
+                        </select>
+                    </div>
                 </div>
+
                 <div class="form-group">
-                    <label>R<sub>2</sub> (Lower Divider, k&Omega;)</label>
-                    <input type="number" step="any" name="r2" placeholder="เช่น 22" required>
+                    <label>R<sub>2</sub> (Lower Divider)</label>
+                    <div class="input-with-unit">
+                        <input type="number" step="any" name="r2" placeholder="22" required>
+                        <select name="r2_unit">
+                            <option value="ohm">&Omega;</option>
+                            <option value="kohm" selected>k&Omega;</option>
+                            <option value="mohm">M&Omega;</option>
+                        </select>
+                    </div>
                 </div>
+
                 <div class="form-group">
-                    <label>R<sub>C</sub> (Collector Resistor, k&Omega;)</label>
-                    <input type="number" step="any" name="rc" placeholder="เช่น 2.2" required>
+                    <label>R<sub>C</sub> (Collector Resistor)</label>
+                    <div class="input-with-unit">
+                        <input type="number" step="any" name="rc" placeholder="2.2" required>
+                        <select name="rc_unit">
+                            <option value="ohm">&Omega;</option>
+                            <option value="kohm" selected>k&Omega;</option>
+                            <option value="mohm">M&Omega;</option>
+                        </select>
+                    </div>
                 </div>
+
                 <div class="form-group">
-                    <label>R<sub>E</sub> (Emitter Resistor, k&Omega;)</label>
-                    <input type="number" step="any" name="re" placeholder="เช่น 1.0" required>
+                    <label>R<sub>E</sub> (Emitter Resistor)</label>
+                    <div class="input-with-unit">
+                        <input type="number" step="any" name="re" placeholder="1.0" required>
+                        <select name="re_unit">
+                            <option value="ohm">&Omega;</option>
+                            <option value="kohm" selected>k&Omega;</option>
+                            <option value="mohm">M&Omega;</option>
+                        </select>
+                    </div>
                 </div>
+
                 <div class="form-group">
                     <label>&beta; (Current Gain)</label>
-                    <input type="number" step="any" name="beta" placeholder="เช่น 100" required>
+                    <div class="input-with-unit">
+                        <input type="number" step="any" name="beta" placeholder="100" required>
+                        <span class="static-unit">-</span>
+                    </div>
                 </div>
+
                 <div class="form-group">
-                    <label>V<sub>BE</sub> (Base-Emitter Voltage, V)</label>
-                    <input type="number" step="any" name="vbe" placeholder="เช่น 0.7" required>
+                    <label>V<sub>BE</sub> (Base-Emitter Voltage)</label>
+                    <div class="input-with-unit">
+                        <input type="number" step="any" name="vbe" placeholder="0.7" required>
+                        <span class="static-unit">V</span>
+                    </div>
                 </div>
+
                 <button type="submit" class="btn-calc">
                     <i class="fas fa-calculator"></i> Calculate DC Bias
                 </button>
             </form>
         </section>
 
-        <!-- Column 2: Circuit Diagram -->
+        <!-- Circuit Diagram -->
         <section class="card circuit-card">
             <div class="card-header">
                 <i class="fas fa-project-diagram"></i>
@@ -68,7 +112,7 @@
             </div>
         </section>
 
-        <!-- Column 3: DC Bias Results -->
+        <!-- Results -->
         <section class="card results-card">
             <div class="card-header">
                 <i class="fas fa-chart-line"></i>
