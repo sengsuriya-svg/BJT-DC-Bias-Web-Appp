@@ -1,1 +1,63 @@
+<!doctype html>
+<html lang="th">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BJT DC Bias Web Application</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+    <div class="container">
+        <h1>BJT DC Bias Calculator</h1>
+        <p class="subtitle">ระบบคำนวณจุดทำงาน (Operating Point) สำหรับวงจร Voltage Divider</p>
+        
+        <form method="POST" class="calc-form">
+            <div class="input-group">
+                <label>VCC (V):</label>
+                <input type="number" step="any" name="vcc" value="12" required>
+            </div>
+            <div class="input-group">
+                <label>R1 (Ω):</label>
+                <input type="number" step="any" name="r1" value="56000" required>
+            </div>
+            <div class="input-group">
+                <label>R2 (Ω):</label>
+                <input type="number" step="any" name="r2" value="10000" required>
+            </div>
+            <div class="input-group">
+                <label>RC (Ω):</label>
+                <input type="number" step="any" name="rc" value="2200" required>
+            </div>
+            <div class="input-group">
+                <label>RE (Ω):</label>
+                <input type="number" step="any" name="re" value="1000" required>
+            </div>
+            <div class="input-group">
+                <label>Beta (β):</label>
+                <input type="number" step="any" name="beta" value="100" required>
+            </div>
+            <button type="submit" class="btn-submit">คำนวณค่า DC Bias</button>
+        </form>
+
+        {% if results %}
+            <div class="results-card">
+                <h2>ผลการคำนวณ (Analysis Results)</h2>
+                {% if results.error %}
+                    <p class="error-msg">{{ results.error }}</p>
+                {% else %}
+                    <ul class="result-list">
+                        <li><span>กระแส Base ($I_B$):</span> <strong>{{ results.ib }} µA</strong></li>
+                        <li><span>กระแส Collector ($I_C$):</span> <strong>{{ results.ic }} mA</strong></li>
+                        <li><span>กระแส Emitter ($I_E$):</span> <strong>{{ results.ie }} mA</strong></li>
+                        <li><span>แรงดันที่ขา Emitter ($V_E$):</span> <strong>{{ results.ve }} V</strong></li>
+                        <li><span>แรงดันที่ขา Collector ($V_C$):</span> <strong>{{ results.vc }} V</strong></li>
+                        <li><span>แรงดัน $V_{CE}$:</span> <strong>{{ results.vce }} V</strong></li>
+                        <li><span>ย่านการทำงาน (Region):</span> <strong class="region-tag">{{ results.region }}</strong></li>
+                    </ul>
+                {% endif %}
+            </div>
+        {% endif %}
+    </div>
+</body>
+</html>
 
