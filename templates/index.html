@@ -3,15 +3,25 @@
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Lab 02: BJT DC Bias Web App</title>
+    <title>Lab 03: BJT DC Bias Web App</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <script>
+        function toggleModeFields() {
+            let mode = document.getElementById('mode-select').value;
+            document.getElementById('divider-fields').style.display = (mode === 'divider') ? 'block' : 'none';
+            document.getElementById('fixed-fields').style.display = (mode === 'fixed') ? 'block' : 'none';
+            document.getElementById('emitter-fields').style.display = (mode === 'emitter') ? 'block' : 'none';
+            document.getElementById('re-container').style.display = (mode === 'fixed') ? 'none' : 'block';
+        }
+        window.onload = toggleModeFields;
+    </script>
 </head>
 <body>
     <header class="main-header">
         <div class="header-content">
-            <h1>Lab 02: BJT DC Bias Web App</h1>
-            <p>ENG29 2121 - Common Emitter (Voltage Divider Bias)</p>
+            <h1>Lab 03: BJT DC Bias Web App</h1>
+            <p>ENG29 2121 - เลือกวงจรไบอัสและคำนวณจุดทำงาน DC</p>
         </div>
     </header>
 
@@ -23,6 +33,16 @@
                 <h2>Input Parameters</h2>
             </div>
             <form method="POST" class="form-vertical">
+                <!-- เลือกโหมดวงจร -->
+                <div class="form-group">
+                    <label>Bias Mode (ประเภทวงจร)</label>
+                    <select name="mode" id="mode-select" onchange="toggleModeFields()" class="mode-dropdown">
+                        <option value="divider" {% if selected_mode == 'divider' %}selected{% endif %}>Voltage Divider Bias</option>
+                        <option value="fixed" {% if selected_mode == 'fixed' %}selected{% endif %}>Fixed Bias</option>
+                        <option value="emitter" {% if selected_mode == 'emitter' %}selected{% endif %}>Emitter Bias</option>
+                    </select>
+                </div>
+
                 <div class="form-group">
                     <label>V<sub>CC</sub> (Supply Voltage)</label>
                     <div class="input-with-unit">
@@ -31,27 +51,59 @@
                     </div>
                 </div>
 
-                <div class="form-group">
-                    <label>R<sub>1</sub> (Upper Divider)</label>
-                    <div class="input-with-unit">
-                        <input type="number" step="any" name="r1" placeholder="100" required>
-                        <select name="r1_unit">
-                            <option value="ohm">&Omega;</option>
-                            <option value="kohm" selected>k&Omega;</option>
-                            <option value="mohm">M&Omega;</option>
-                        </select>
+                <!-- Voltage Divider Fields -->
+                <div id="divider-fields">
+                    <div class="form-group">
+                        <label>R<sub>1</sub> (Upper Divider)</label>
+                        <div class="input-with-unit">
+                            <input type="number" step="any" name="r1" placeholder="100">
+                            <select name="r1_unit">
+                                <option value="ohm">&Omega;</option>
+                                <option value="kohm" selected>k&Omega;</option>
+                                <option value="mohm">M&Omega;</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label>R<sub>2</sub> (Lower Divider)</label>
+                        <div class="input-with-unit">
+                            <input type="number" step="any" name="r2" placeholder="22">
+                            <select name="r2_unit">
+                                <option value="ohm">&Omega;</option>
+                                <option value="kohm" selected>k&Omega;</option>
+                                <option value="mohm">M&Omega;</option>
+                            </select>
+                        </div>
                     </div>
                 </div>
 
-                <div class="form-group">
-                    <label>R<sub>2</sub> (Lower Divider)</label>
-                    <div class="input-with-unit">
-                        <input type="number" step="any" name="r2" placeholder="22" required>
-                        <select name="r2_unit">
-                            <option value="ohm">&Omega;</option>
-                            <option value="kohm" selected>k&Omega;</option>
-                            <option value="mohm">M&Omega;</option>
-                        </select>
+                <!-- Fixed Bias Fields -->
+                <div id="fixed-fields" style="display:none;">
+                    <div class="form-group">
+                        <label>R<sub>B</sub> (Base Resistor)</label>
+                        <div class="input-with-unit">
+                            <input type="number" step="any" name="rb" placeholder="1000">
+                            <select name="rb_unit">
+                                <option value="ohm">&Omega;</option>
+                                <option value="kohm" selected>k&Omega;</option>
+                                <option value="mohm">M&Omega;</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Emitter Bias Fields -->
+                <div id="emitter-fields" style="display:none;">
+                    <div class="form-group">
+                        <label>R<sub>B</sub> (Base Resistor)</label>
+                        <div class="input-with-unit">
+                            <input type="number" step="any" name="rb" placeholder="1000">
+                            <select name="rb_unit">
+                                <option value="ohm">&Omega;</option>
+                                <option value="kohm" selected>k&Omega;</option>
+                                <option value="mohm">M&Omega;</option>
+                            </select>
+                        </div>
                     </div>
                 </div>
 
@@ -67,10 +119,10 @@
                     </div>
                 </div>
 
-                <div class="form-group">
+                <div class="form-group" id="re-container">
                     <label>R<sub>E</sub> (Emitter Resistor)</label>
                     <div class="input-with-unit">
-                        <input type="number" step="any" name="re" placeholder="1.0" required>
+                        <input type="number" step="any" name="re" placeholder="1.0">
                         <select name="re_unit">
                             <option value="ohm">&Omega;</option>
                             <option value="kohm" selected>k&Omega;</option>
