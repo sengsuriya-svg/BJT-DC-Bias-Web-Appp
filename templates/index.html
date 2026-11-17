@@ -9,36 +9,139 @@
 </head>
 <body>
     <header class="main-header">
-        <div class="header-left">
-            <i class="fas fa-microchip fa-2x logo-icon"></i>
-            <div>
-                <h1>Lab 02: BJT DC Bias Web App</h1>
-                <p>ENG29 2121 - Common Emitter (Voltage Divider Bias)</p>
-            </div>
-        </div>
-        <div class="header-right">
-            <div class="course-info">
-                <i class="fas fa-code fa-lg"></i>
-                <div>
-                    <p>Computer Programming for</p>
-                    <p>Electrical Engineers</p>
-                </div>
-            </div>
+        <div class="header-content">
+            <h1>Lab 02: BJT DC Bias Web App</h1>
+            <p>ENG29 2121 - Common Emitter (Voltage Divider Bias)</p>
         </div>
     </header>
 
     <main class="app-container">
-        <!-- Column 1: Input Parameters -->
+        <!-- Input Form -->
         <section class="card input-card">
             <div class="card-header">
                 <i class="fas fa-cogs"></i>
                 <h2>Input Parameters</h2>
             </div>
-            <form method="POST">
-                <div class="input-form-grid">
-                    <div class="form-row">
-                        <label>V<sub>CC</sub> (Supply Voltage)</label>
-                        <div class="input-with-unit">
-                            <input type="number" step="any" name="vcc" value="12.0" required>
-                            <span class="static-unit">V</span>
-                        
+            <form method="POST" class="form-vertical">
+                <div class="form-group">
+                    <label>V<sub>CC</sub> (Supply Voltage)</label>
+                    <div class="input-with-unit">
+                        <input type="number" step="any" name="vcc" placeholder="12" required>
+                        <span class="static-unit">V</span>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label>R<sub>1</sub> (Upper Divider)</label>
+                    <div class="input-with-unit">
+                        <input type="number" step="any" name="r1" placeholder="100" required>
+                        <select name="r1_unit">
+                            <option value="ohm">&Omega;</option>
+                            <option value="kohm" selected>k&Omega;</option>
+                            <option value="mohm">M&Omega;</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label>R<sub>2</sub> (Lower Divider)</label>
+                    <div class="input-with-unit">
+                        <input type="number" step="any" name="r2" placeholder="22" required>
+                        <select name="r2_unit">
+                            <option value="ohm">&Omega;</option>
+                            <option value="kohm" selected>k&Omega;</option>
+                            <option value="mohm">M&Omega;</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label>R<sub>C</sub> (Collector Resistor)</label>
+                    <div class="input-with-unit">
+                        <input type="number" step="any" name="rc" placeholder="2.2" required>
+                        <select name="rc_unit">
+                            <option value="ohm">&Omega;</option>
+                            <option value="kohm" selected>k&Omega;</option>
+                            <option value="mohm">M&Omega;</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label>R<sub>E</sub> (Emitter Resistor)</label>
+                    <div class="input-with-unit">
+                        <input type="number" step="any" name="re" placeholder="1.0" required>
+                        <select name="re_unit">
+                            <option value="ohm">&Omega;</option>
+                            <option value="kohm" selected>k&Omega;</option>
+                            <option value="mohm">M&Omega;</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label>&beta; (Current Gain)</label>
+                    <div class="input-with-unit">
+                        <input type="number" step="any" name="beta" placeholder="100" required>
+                        <span class="static-unit">-</span>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label>V<sub>BE</sub> (Base-Emitter Voltage)</label>
+                    <div class="input-with-unit">
+                        <input type="number" step="any" name="vbe" placeholder="0.7" required>
+                        <span class="static-unit">V</span>
+                    </div>
+                </div>
+
+                <button type="submit" class="btn-calc">
+                    <i class="fas fa-calculator"></i> Calculate DC Bias
+                </button>
+            </form>
+        </section>
+
+        <!-- Circuit Diagram -->
+        <section class="card circuit-card">
+            <div class="card-header">
+                <i class="fas fa-project-diagram"></i>
+                <h2>Circuit Diagram</h2>
+            </div>
+            <div class="circuit-diagram-container">
+                <img src="{{ url_for('static', filename='bjt_circuit.png') }}" alt="BJT Circuit Diagram" class="circuit-img">
+            </div>
+        </section>
+
+        <!-- Results -->
+        <section class="card results-card">
+            <div class="card-header">
+                <i class="fas fa-chart-line"></i>
+                <h2>DC Bias Results</h2>
+            </div>
+            
+            <div class="results-body">
+                {% if results and not results.error %}
+                <div class="results-list">
+                    <div class="result-item"><span>V<sub>B</sub></span><strong>{{ results.vb }} V</strong></div>
+                    <div class="result-item"><span>V<sub>E</sub></span><strong>{{ results.ve }} V</strong></div>
+                    <div class="result-item"><span>V<sub>C</sub></span><strong>{{ results.vc }} V</strong></div>
+                    <div class="result-item"><span>V<sub>CE</sub></span><strong>{{ results.vce }} V</strong></div>
+                    <div class="result-item"><span>I<sub>B</sub></span><strong>{{ results.ib }} µA</strong></div>
+                    <div class="result-item"><span>I<sub>C</sub></span><strong>{{ results.ic }} mA</strong></div>
+                    <div class="result-item"><span>I<sub>E</sub></span><strong>{{ results.ie }} mA</strong></div>
+                </div>
+
+                <div class="status-box {{ 'status-ok' if results.region == 'Active' else 'status-warning' }}">
+                    <strong>{{ results.region }} region OK</strong>
+                    <p>V<sub>CE</sub> = {{ results.vce }} V > 0.2 V</p>
+                </div>
+                {% elif results and results.error %}
+                    <p class="error-msg">{{ results.error }}</p>
+                {% else %}
+                    <p class="placeholder-text">กรอกข้อมูลด้านซ้ายแล้วกดคำนวณ</p>
+                {% endif %}
+            </div>
+        </section>
+    </main>
+</body>
+</html>
