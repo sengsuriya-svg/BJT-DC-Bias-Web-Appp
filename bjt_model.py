@@ -3,7 +3,6 @@ def calculate_bjt_bias(mode, vcc, beta, vbe, r1=0, r1_unit='kohm', r2=0, r2_unit
     try:
         unit_multiplier = {'ohm': 1, 'kohm': 1e3, 'mohm': 1e6}
         
-        # แปลงค่าตัวต้านทานเป็น Ohms (Ω)
         RC = rc * unit_multiplier.get(rc_unit, 1e3)
         
         ib = 0
@@ -18,14 +17,16 @@ def calculate_bjt_bias(mode, vcc, beta, vbe, r1=0, r1_unit='kohm', r2=0, r2_unit
             RB = rb * unit_multiplier.get(rb_unit, 1e3)
             if RB <= 0:
                 return {'error': 'ค่า R_B ต้องมากกว่า 0'}
-            # Fixed Bias: IB = (VCC - VBE) / RB
-            ib = (vcc - vbe) / RB
-            ic = beta * ib
-            ie = (beta + 1) * ib
+            ib_amp = (vcc - vbe) / RB
+            ic_amp = beta * ib_amp
+            ie_amp = (beta + 1) * ib_amp
             ve = 0.0
             vb = vbe
-            vc = vcc - (ic * RC)
+            vc = vcc - (ic_amp * RC)
             vce = vc - ve
+            ib = ib_amp * 1e6
+            ic = ic_amp * 1e3
+            ie = ie_amp * 1e3
             
         elif mode == 'emitter':
             RB = rb * unit_multiplier.get(rb_unit, 1e3)
@@ -33,16 +34,18 @@ def calculate_bjt_bias(mode, vcc, beta, vbe, r1=0, r1_unit='kohm', r2=0, r2_unit
             denom = RB + (beta + 1) * RE
             if denom <= 0:
                 return {'error': 'ค่าความต้านทานไม่ถูกต้อง'}
-            # Emitter Bias: IB = (VCC - VBE) / [RB + (beta + 1)RE]
-            ib = (vcc - vbe) / denom
-            ic = beta * ib
-            ie = (beta + 1) * ib
-            ve = ie * RE
+            ib_amp = (vcc - vbe) / denom
+            ic_amp = beta * ib_amp
+            ie_amp = (beta + 1) * ib_amp
+            ve = ie_amp * RE
             vb = ve + vbe
-            vc = vcc - (ic * RC)
+            vc = vcc - (ic_amp * RC)
             vce = vc - ve
+            ib = ib_amp * 1e6
+            ic = ic_amp * 1e3
+            ie = ie_amp * 1e3
             
-        else:  # Voltage Divider Bias (ค่าเดิม)
+        else:  # Voltage Divider (ใช้สูตรเดิมเป๊ะๆ จาก Lab 02 ของคุณ)
             R1 = r1 * unit_multiplier.get(r1_unit, 1e3)
             R2 = r2 * unit_multiplier.get(r2_unit, 1e3)
             RE = re * unit_multiplier.get(re_unit, 1e3)
@@ -50,31 +53,31 @@ def calculate_bjt_bias(mode, vcc, beta, vbe, r1=0, r1_unit='kohm', r2=0, r2_unit
             if (R1 + R2) <= 0:
                 return {'error': 'ผลรวม R1 และ R2 ต้องมากกว่า 0'}
             
-            vth = vcc * (R2 / (R1 + R2))
-            rth = (R1 * R2) / (R1 + R2)
-            denom = rth + (beta + 1) * RE
-            if denom <= 0:
-                return {'error': 'ค่าความต้านทานไม่ถูกต้อง'}
+            vb = vcc * (R2 / (R1 + R2))
+            ve = vb - vbe
+            if ve < 0:
+                ve = 0.0
                 
-            ib = (vth - vbe) / denom
-            ic = beta * ib
-            ie = (beta + 1) * ib
-            ve = ie * RE
-            vb = ve + vbe
-            vc = vcc - (ic * RC)
+            ie_amp = ve / RE if RE > 0 else 0
+            ic_amp = ie_amp
+            ib = (ic_amp / beta) * 1e6 if beta > 0 else 0 # µA
+            vc = vcc - (ic_amp * RC)
             vce = vc - ve
+            
+            ic = ic_amp * 1e3 # mA
+            ie = ie_amp * 1e3 # mA
 
-        # ตรวจสอบย่านการทำงาน (Active Region)
-        region = "Active" if vce > 0.2 and ib > 0 else "Saturation / Cutoff"
+        # ตรวจสอบย่านการทำงาน
+        region = "Active" if vce > 0.2 else "Saturation"
         
         return {
             'vb': round(vb, 2),
             've': round(ve, 2),
             'vc': round(vc, 2),
             'vce': round(vce, 2),
-            'ib': round(ib * 1e6, 2),  # แปลงเป็น µA
-            'ic': round(ic * 1e3, 2),  # แปลงเป็น mA
-            'ie': round(ie * 1e3, 2),  # แปลงเป็น mA
+            'ib': round(ib, 2),
+            'ic': round(ic, 2),
+            'ie': round(ie, 2),
             'region': region
         }
     except Exception as e:
