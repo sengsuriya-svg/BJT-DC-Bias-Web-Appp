@@ -29,9 +29,9 @@ python -m flask --app app run
 
 ### ngspice (external program, not a pip package)
 
-SPICE modes need an `ngspice` executable. The app looks on `PATH` first, then in `.ngspice/bin/ngspice` inside the project (the location created by the Render build script). If neither exists, the app shows an explicit error and no plot — it never returns a fake success.
+SPICE modes need an `ngspice` executable. The app looks on `PATH` first, then (on Linux) in the committed `vendor/ngspice/bin/ngspice`, then in `.ngspice/bin/ngspice` if a user-level install was created. If none exists, the app shows an explicit error and no plot — it never returns a fake success.
 
-On Windows, download the installer from the [ngspice download page](https://ngspice.sourceforge.io/download.html), install it, and add the install folder to `PATH`.
+The committed `vendor/ngspice/` bundle is a Linux x86-64 ngspice 41 build from conda-forge with its required shared libraries under `lib/` and XSPICE code models under `lib/ngspice/`. It has RPATH `$ORIGIN/../lib`, so no `LD_LIBRARY_PATH`, `apt-get`, `sudo` or Render Shell is needed. Windows ignores this bundle: download the installer from the [ngspice download page](https://ngspice.sourceforge.io/download.html), install it, and add the install folder to `PATH`.
 
 ### Deploying with Docker (recommended: Hugging Face Spaces, free)
 
@@ -52,15 +52,11 @@ The same `Dockerfile` also works on a **Render Docker Web Service** if you prefe
 
 ### Deploying on Render (free / Native runtime)
 
-Do **not** use `apt-get`: Render's free Native environments do not grant the permissions for OS-level package installs, so an `apt-get` Build Command fails before the app starts. Set the service's **Build Command** to:
+**No Build Command change is needed.** Remove the `apt-get ...` Build Command if you added it — Render free Native environments do not grant OS-level package install rights, so `apt-get` fails before the app starts. Leave the service at its default Python settings (`pip install -r requirements.txt`) and keep the existing **Start Command** unchanged. The committed Linux binary in `vendor/ngspice/` is checked out with the repo and discovered automatically at runtime.
 
-```bash
-python scripts/install_ngspice.py && pip install -r requirements.txt
-```
+Use **Manual Deploy → Deploy latest commit**. To confirm the engine after deploy, open the site and submit a SPICE analysis: the result badge shows `Engine: ngspice` and `Status: success` with real values/plot. If the binary cannot be found, the page shows `ngspice not found in PATH; install ngspice before running SPICE analysis` and draws no plot — it never invents a trace.
 
-`scripts/install_ngspice.py` uses only the Python standard library. It downloads a standalone micromamba binary, creates a local conda environment with `ngspice=41` from conda-forge under `.ngspice/`, and prints the ngspice version at the end of the build. No `sudo`, root access or Render Shell is required.
-
-Keep the existing **Start Command** unchanged. Use **Manual Deploy → Deploy latest commit**. To confirm the engine after deploy, open the site and submit a SPICE analysis: the result badge shows `Engine: ngspice` and `Status: success` with real values/plot. If the install failed, the page shows `ngspice not found in PATH; install ngspice before running SPICE analysis` and draws no plot — it never invents a trace.
+`scripts/install_ngspice.py` is kept only as an optional fallback: if you prefer to install ngspice at build time, set Build Command to `python scripts/install_ngspice.py && pip install -r requirements.txt`. It uses a user-level micromamba environment under `.ngspice/` and needs no root access. It is **not** required for the default deploy.
 
 ## Reference circuit and model
 
@@ -82,7 +78,7 @@ No instructor-verified starter kit was supplied, so the BJT model above is a **d
 1. The browser submits CE values and the selected analysis.
 2. `spice_engine.validate_ce_inputs` checks numbers, ranges and units.
 3. `spice_engine.build_netlist` writes a batch netlist with `.op` (its node-voltage table is parsed directly) or the selected `.ac` / `.tran` directive with matching `.print` statements.
-4. `subprocess.run([resolved_ngspice, "-b", "-o", "run.log", "circuit.cir"], ...)` runs with `shell=False` in a fresh temporary directory with a timeout. `resolved_ngspice` is the executable found on `PATH` or the local `.ngspice/bin/ngspice`.
+4. `subprocess.run([resolved_ngspice, "-b", "-o", "run.log", "circuit.cir"], ...)` runs with `shell=False` in a fresh temporary directory with a timeout. `resolved_ngspice` is the executable found on `PATH`, the committed `vendor/ngspice/bin/ngspice` on Linux, or the optional `.ngspice/bin/ngspice`.
 5. The ASCII `run.log` is parsed into values/points; `plots.py` draws the SVG. Errors, timeouts and empty logs produce an error status with no plot.
 
 ## Tests
@@ -96,6 +92,6 @@ The suite covers validation, netlist generation, parsers, engine-missing and emp
 ## Current limitations
 
 - No starter kit was provided, so no instructor-verified BJT model exists here.
-- B2–B6 were executed locally with a portable Windows ngspice 47 binary on `PATH`; see [`docs/validation.md`](docs/validation.md). The Docker image installs Debian's `ngspice` package, and the Render Native Build Command installs ngspice 41 from conda-forge; neither Linux build is verified locally.
+- B2–B6 were executed locally with a portable Windows ngspice 47 binary on `PATH`; see [`docs/validation.md`](docs/validation.md). The committed Linux bundle is ngspice 41 from conda-forge. Its ELF RPATH and `DT_NEEDED` closure were checked statically, but it cannot be executed in this Windows environment (no Docker/WSL), so the Render runtime itself is unverified here. The Docker image installs Debian's `ngspice` package instead.
 - Only the reference voltage-divider CE stage is simulated. Fixed/Emitter bias remain analytical only.
 - No emitter bypass capacitor, no free-form circuit editor, and no `render.yaml` in this repository — deployment is either the included `Dockerfile` or the Render Dashboard Build Command documented above.

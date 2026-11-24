@@ -124,6 +124,34 @@ class ParserTests(unittest.TestCase):
 
 
 class EngineDiscoveryTests(unittest.TestCase):
+    def test_vendor_binary_is_found_on_linux_when_path_is_empty(self):
+        with tempfile.TemporaryDirectory() as directory:
+            binary = Path(directory) / "vendor" / "ngspice" / "bin" / "ngspice"
+            binary.parent.mkdir(parents=True)
+            binary.write_text("fake", encoding="utf-8")
+
+            with (
+                patch("spice_engine.shutil.which", return_value=None),
+                patch("spice_engine.sys.platform", "linux"),
+            ):
+                found = spice_engine.resolve_ngspice(project_dir=Path(directory))
+
+            self.assertEqual(found, str(binary.resolve()))
+
+    def test_vendor_binary_is_ignored_on_windows(self):
+        with tempfile.TemporaryDirectory() as directory:
+            binary = Path(directory) / "vendor" / "ngspice" / "bin" / "ngspice"
+            binary.parent.mkdir(parents=True)
+            binary.write_text("fake", encoding="utf-8")
+
+            with (
+                patch("spice_engine.shutil.which", return_value=None),
+                patch("spice_engine.sys.platform", "win32"),
+            ):
+                found = spice_engine.resolve_ngspice(project_dir=Path(directory))
+
+            self.assertIsNone(found)
+
     def test_bundled_binary_is_found_when_path_is_empty(self):
         with tempfile.TemporaryDirectory() as directory:
             binary = Path(directory) / ".ngspice" / "bin" / "ngspice"

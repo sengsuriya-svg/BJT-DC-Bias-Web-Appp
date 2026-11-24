@@ -11,6 +11,7 @@ from __future__ import annotations
 import re
 import shutil
 import subprocess
+import sys
 import tempfile
 from pathlib import Path
 
@@ -21,6 +22,7 @@ MODEL_CARD = ".model NPN_GENERIC NPN(BF=100 VAF=100 IS=1e-14 RB=10 RC=1)"
 MODEL_LABEL = "NPN_GENERIC (BF=100, VAF=100, IS=1e-14, RB=10, RC=1)"
 ANALYSES = {"dc", "ac", "tran"}
 NGSPICE_RELATIVE_PATH = Path(".ngspice") / "bin" / "ngspice"
+VENDOR_RELATIVE_PATH = Path("vendor") / "ngspice" / "bin" / "ngspice"
 
 _NUMBER_RE = re.compile(r"[-+]?\d*\.?\d+(?:[eE][-+]?\d+)?")
 
@@ -154,10 +156,16 @@ def resolve_ngspice(project_dir: Path | None = None) -> str | None:
         return from_path
 
     root = Path(project_dir) if project_dir is not None else Path(__file__).resolve().parent
+    relative_paths = [NGSPICE_RELATIVE_PATH]
+    if sys.platform == "linux":
+        # The repo ships a self-contained Linux binary so Render's default
+        # Python build command needs no apt-get, sudo or Shell access.
+        relative_paths.insert(0, VENDOR_RELATIVE_PATH)
     for base in (root, Path.cwd()):
-        candidate = base / NGSPICE_RELATIVE_PATH
-        if candidate.is_file():
-            return str(candidate.resolve())
+        for relative in relative_paths:
+            candidate = base / relative
+            if candidate.is_file():
+                return str(candidate.resolve())
     return None
 
 
