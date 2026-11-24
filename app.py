@@ -78,6 +78,7 @@ def index():
                     'Frequency (Hz)', 'Gain (dB)',
                     'AC frequency response (ngspice)',
                     ['Gain (dB)'],
+                    log_x=True,
                 )
             elif spice_result['status'] == 'success' and analysis == 'tran':
                 spice_result['plot'] = line_svg(

@@ -106,6 +106,14 @@ class SpiceSuccessTests(unittest.TestCase):
         self.assertNotIn(b"error-msg", response.data)
 
     @patch("app.simulate", return_value=success_result(
+        "ac", [[1.0, -42.0, 0.0], [10.0, -38.0, 0.0], [1000.0, -34.0, 0.0]]
+    ))
+    def test_ac_result_uses_log_frequency_axis(self, _):
+        response = self.client.post("/", data={"analysis": "spice_ac"})
+        self.assertEqual(response.status_code, 200)
+        self.assertIn(b">1k<", response.data)
+
+    @patch("app.simulate", return_value=success_result(
         "tran", [[0.0, 0.0, 0.0], [0.001, 0.01, -0.21]]
     ))
     def test_successful_tran_renders_plot(self, _):
