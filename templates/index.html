@@ -3,7 +3,7 @@
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Lab 03: BJT DC Bias Web App</title>
+    <title>Lab 04: BJT CE Amplifier Simulator v1</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
     <script>
@@ -14,146 +14,270 @@
             document.getElementById('emitter-fields').style.display = (mode === 'emitter') ? 'block' : 'none';
             document.getElementById('re-container').style.display = (mode === 'fixed') ? 'none' : 'block';
         }
-        window.onload = toggleModeFields;
+
+        function toggleAnalysis() {
+            let analysis = document.getElementById('analysis-select').value;
+            let isBias = analysis === 'bias';
+            document.getElementById('bias-panel').style.display = isBias ? 'block' : 'none';
+            document.getElementById('spice-panel').style.display = isBias ? 'none' : 'block';
+            document.getElementById('submit-btn').innerHTML = isBias
+                ? '<i class="fas fa-calculator"></i> Calculate DC Bias'
+                : '<i class="fas fa-play"></i> Run ngspice Simulation';
+        }
+
+        window.onload = function () {
+            toggleModeFields();
+            toggleAnalysis();
+        };
     </script>
 </head>
 <body>
     <header class="main-header">
         <div class="header-content">
-            <h1>Lab 03: BJT DC Bias Web App</h1>
-            <p>ENG29 2121 - เลือกวงจรไบอัสและคำนวณจุดทำงาน DC</p>
+            <h1>Lab 04: BJT CE Amplifier Simulator v1</h1>
+            <p>ENG29 2121 · Analytical DC Bias (Lab 3) + ngspice DC / AC / Transient for a reference CE stage</p>
         </div>
     </header>
 
     <main class="app-container">
-        <!-- Input Form -->
         <section class="card input-card">
             <div class="card-header">
                 <i class="fas fa-cogs"></i>
                 <h2>Input Parameters</h2>
             </div>
             <form method="POST" class="form-vertical">
-                <!-- เลือกโหมดวงจร -->
                 <div class="form-group">
-                    <label>Bias Mode (ประเภทวงจร)</label>
-                    <select name="mode" id="mode-select" onchange="toggleModeFields()" class="mode-dropdown">
-                        <option value="divider" {% if selected_mode == 'divider' %}selected{% endif %}>Voltage Divider Bias</option>
-                        <option value="fixed" {% if selected_mode == 'fixed' %}selected{% endif %}>Fixed Bias</option>
-                        <option value="emitter" {% if selected_mode == 'emitter' %}selected{% endif %}>Emitter Bias</option>
+                    <label>Analysis Mode</label>
+                    <select name="analysis" id="analysis-select" onchange="toggleAnalysis()" class="mode-dropdown">
+                        <option value="bias" {% if selected_analysis == 'bias' %}selected{% endif %}>Analytical DC Bias (Lab 3)</option>
+                        <option value="spice_dc" {% if selected_analysis == 'spice_dc' %}selected{% endif %}>SPICE · DC operating point (.op)</option>
+                        <option value="spice_ac" {% if selected_analysis == 'spice_ac' %}selected{% endif %}>SPICE · AC frequency response (.ac)</option>
+                        <option value="spice_tran" {% if selected_analysis == 'spice_tran' %}selected{% endif %}>SPICE · Transient (.tran)</option>
                     </select>
                 </div>
 
-                <div class="form-group">
-                    <label>V<sub>CC</sub> (Supply Voltage)</label>
-                    <div class="input-with-unit">
-                        <input type="number" step="any" name="vcc" placeholder="12" required>
-                        <span class="static-unit">V</span>
-                    </div>
-                </div>
-
-                <!-- Voltage Divider Fields -->
-                <div id="divider-fields">
+                <div id="bias-panel" class="analysis-panel">
                     <div class="form-group">
-                        <label>R<sub>1</sub> (Upper Divider)</label>
-                        <div class="input-with-unit">
-                            <input type="number" step="any" name="r1" placeholder="100">
-                            <select name="r1_unit">
-                                <option value="ohm">&Omega;</option>
-                                <option value="kohm" selected>k&Omega;</option>
-                                <option value="mohm">M&Omega;</option>
-                            </select>
-                        </div>
-                    </div>
-                    <div class="form-group">
-                        <label>R<sub>2</sub> (Lower Divider)</label>
-                        <div class="input-with-unit">
-                            <input type="number" step="any" name="r2" placeholder="22">
-                            <select name="r2_unit">
-                                <option value="ohm">&Omega;</option>
-                                <option value="kohm" selected>k&Omega;</option>
-                                <option value="mohm">M&Omega;</option>
-                            </select>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Fixed Bias Fields -->
-                <div id="fixed-fields" style="display:none;">
-                    <div class="form-group">
-                        <label>R<sub>B</sub> (Base Resistor)</label>
-                        <div class="input-with-unit">
-                            <input type="number" step="any" name="rb" placeholder="1000">
-                            <select name="rb_unit">
-                                <option value="ohm">&Omega;</option>
-                                <option value="kohm" selected>k&Omega;</option>
-                                <option value="mohm">M&Omega;</option>
-                            </select>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Emitter Bias Fields -->
-                <div id="emitter-fields" style="display:none;">
-                    <div class="form-group">
-                        <label>R<sub>B</sub> (Base Resistor)</label>
-                        <div class="input-with-unit">
-                            <input type="number" step="any" name="rb" placeholder="1000">
-                            <select name="rb_unit">
-                                <option value="ohm">&Omega;</option>
-                                <option value="kohm" selected>k&Omega;</option>
-                                <option value="mohm">M&Omega;</option>
-                            </select>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="form-group">
-                    <label>R<sub>C</sub> (Collector Resistor)</label>
-                    <div class="input-with-unit">
-                        <input type="number" step="any" name="rc" placeholder="2.2" required>
-                        <select name="rc_unit">
-                            <option value="ohm">&Omega;</option>
-                            <option value="kohm" selected>k&Omega;</option>
-                            <option value="mohm">M&Omega;</option>
+                        <label>Bias Mode (ประเภทวงจร)</label>
+                        <select name="mode" id="mode-select" onchange="toggleModeFields()" class="mode-dropdown">
+                            <option value="divider" {% if selected_mode == 'divider' %}selected{% endif %}>Voltage Divider Bias</option>
+                            <option value="fixed" {% if selected_mode == 'fixed' %}selected{% endif %}>Fixed Bias</option>
+                            <option value="emitter" {% if selected_mode == 'emitter' %}selected{% endif %}>Emitter Bias</option>
                         </select>
                     </div>
-                </div>
 
-                <div class="form-group" id="re-container">
-                    <label>R<sub>E</sub> (Emitter Resistor)</label>
-                    <div class="input-with-unit">
-                        <input type="number" step="any" name="re" placeholder="1.0">
-                        <select name="re_unit">
-                            <option value="ohm">&Omega;</option>
-                            <option value="kohm" selected>k&Omega;</option>
-                            <option value="mohm">M&Omega;</option>
-                        </select>
+                    <div class="form-group">
+                        <label>V<sub>CC</sub> (Supply Voltage)</label>
+                        <div class="input-with-unit">
+                            <input type="number" step="any" name="vcc" placeholder="12" value="{{ form.get('vcc') or '' }}">
+                            <span class="static-unit">V</span>
+                        </div>
+                    </div>
+
+                    <div id="divider-fields">
+                        <div class="form-group">
+                            <label>R<sub>1</sub> (Upper Divider)</label>
+                            <div class="input-with-unit">
+                                <input type="number" step="any" name="r1" placeholder="100" value="{{ form.get('r1') or '' }}">
+                                <select name="r1_unit">
+                                    <option value="ohm">&Omega;</option>
+                                    <option value="kohm" selected>k&Omega;</option>
+                                    <option value="mohm">M&Omega;</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label>R<sub>2</sub> (Lower Divider)</label>
+                            <div class="input-with-unit">
+                                <input type="number" step="any" name="r2" placeholder="22" value="{{ form.get('r2') or '' }}">
+                                <select name="r2_unit">
+                                    <option value="ohm">&Omega;</option>
+                                    <option value="kohm" selected>k&Omega;</option>
+                                    <option value="mohm">M&Omega;</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div id="fixed-fields" style="display:none;">
+                        <div class="form-group">
+                            <label>R<sub>B</sub> (Base Resistor)</label>
+                            <div class="input-with-unit">
+                                <input type="number" step="any" name="rb" placeholder="1000" value="{{ form.get('rb') or '' }}">
+                                <select name="rb_unit">
+                                    <option value="ohm">&Omega;</option>
+                                    <option value="kohm" selected>k&Omega;</option>
+                                    <option value="mohm">M&Omega;</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div id="emitter-fields" style="display:none;">
+                        <div class="form-group">
+                            <label>R<sub>B</sub> (Base Resistor)</label>
+                            <div class="input-with-unit">
+                                <input type="number" step="any" name="rb" placeholder="1000" value="{{ form.get('rb') or '' }}">
+                                <select name="rb_unit">
+                                    <option value="ohm">&Omega;</option>
+                                    <option value="kohm" selected>k&Omega;</option>
+                                    <option value="mohm">M&Omega;</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label>R<sub>C</sub> (Collector Resistor)</label>
+                        <div class="input-with-unit">
+                            <input type="number" step="any" name="rc" placeholder="2.2" value="{{ form.get('rc') or '' }}">
+                            <select name="rc_unit">
+                                <option value="ohm">&Omega;</option>
+                                <option value="kohm" selected>k&Omega;</option>
+                                <option value="mohm">M&Omega;</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="form-group" id="re-container">
+                        <label>R<sub>E</sub> (Emitter Resistor)</label>
+                        <div class="input-with-unit">
+                            <input type="number" step="any" name="re" placeholder="1.0" value="{{ form.get('re') or '' }}">
+                            <select name="re_unit">
+                                <option value="ohm">&Omega;</option>
+                                <option value="kohm" selected>k&Omega;</option>
+                                <option value="mohm">M&Omega;</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label>&beta; (Current Gain)</label>
+                        <div class="input-with-unit">
+                            <input type="number" step="any" name="beta" placeholder="100" value="{{ form.get('beta') or '' }}">
+                            <span class="static-unit">-</span>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label>V<sub>BE</sub> (Base-Emitter Voltage)</label>
+                        <div class="input-with-unit">
+                            <input type="number" step="any" name="vbe" placeholder="0.7" value="{{ form.get('vbe') or '' }}">
+                            <span class="static-unit">V</span>
+                        </div>
                     </div>
                 </div>
 
-                <div class="form-group">
-                    <label>&beta; (Current Gain)</label>
-                    <div class="input-with-unit">
-                        <input type="number" step="any" name="beta" placeholder="100" required>
-                        <span class="static-unit">-</span>
+                <div id="spice-panel" class="analysis-panel" style="display:none;">
+                    <p class="panel-hint">Reference CE voltage-divider stage. No bypass capacitor. Values are SI-converted before the netlist is written.</p>
+                    <div class="spice-grid">
+                        <div class="form-group">
+                            <label>V<sub>CC</sub></label>
+                            <div class="input-with-unit">
+                                <input type="number" step="any" name="s_vcc" placeholder="12" value="{{ form.get('s_vcc') or '12' }}">
+                                <span class="static-unit">V</span>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label>R<sub>1</sub></label>
+                            <div class="input-with-unit">
+                                <input type="number" step="any" name="s_r1" placeholder="100" value="{{ form.get('s_r1') or '100' }}">
+                                <select name="s_r1_unit">
+                                    <option value="ohm">&Omega;</option>
+                                    <option value="kohm" selected>k&Omega;</option>
+                                    <option value="mohm">M&Omega;</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label>R<sub>2</sub></label>
+                            <div class="input-with-unit">
+                                <input type="number" step="any" name="s_r2" placeholder="22" value="{{ form.get('s_r2') or '22' }}">
+                                <select name="s_r2_unit">
+                                    <option value="ohm">&Omega;</option>
+                                    <option value="kohm" selected>k&Omega;</option>
+                                    <option value="mohm">M&Omega;</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label>R<sub>C</sub></label>
+                            <div class="input-with-unit">
+                                <input type="number" step="any" name="s_rc" placeholder="2.2" value="{{ form.get('s_rc') or '2.2' }}">
+                                <select name="s_rc_unit">
+                                    <option value="ohm">&Omega;</option>
+                                    <option value="kohm" selected>k&Omega;</option>
+                                    <option value="mohm">M&Omega;</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label>R<sub>E</sub></label>
+                            <div class="input-with-unit">
+                                <input type="number" step="any" name="s_re" placeholder="1" value="{{ form.get('s_re') or '1' }}">
+                                <select name="s_re_unit">
+                                    <option value="ohm">&Omega;</option>
+                                    <option value="kohm" selected>k&Omega;</option>
+                                    <option value="mohm">M&Omega;</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label>R<sub>L</sub></label>
+                            <div class="input-with-unit">
+                                <input type="number" step="any" name="s_rl" placeholder="10" value="{{ form.get('s_rl') or '10' }}">
+                                <select name="s_rl_unit">
+                                    <option value="ohm">&Omega;</option>
+                                    <option value="kohm" selected>k&Omega;</option>
+                                    <option value="mohm">M&Omega;</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label>C<sub>in</sub></label>
+                            <div class="input-with-unit">
+                                <input type="number" step="any" name="s_cin" placeholder="10" value="{{ form.get('s_cin') or '10' }}">
+                                <select name="s_cin_unit">
+                                    <option value="pF">pF</option>
+                                    <option value="nF">nF</option>
+                                    <option value="uF" selected>&micro;F</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label>C<sub>out</sub></label>
+                            <div class="input-with-unit">
+                                <input type="number" step="any" name="s_cout" placeholder="10" value="{{ form.get('s_cout') or '10' }}">
+                                <select name="s_cout_unit">
+                                    <option value="pF">pF</option>
+                                    <option value="nF">nF</option>
+                                    <option value="uF" selected>&micro;F</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label>Source amplitude (peak)</label>
+                            <div class="input-with-unit">
+                                <input type="number" step="any" name="amplitude" placeholder="0.01" value="{{ form.get('amplitude') or '0.01' }}">
+                                <span class="static-unit">V</span>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label>Source frequency</label>
+                            <div class="input-with-unit">
+                                <input type="number" step="any" name="frequency" placeholder="1000" value="{{ form.get('frequency') or '1000' }}">
+                                <span class="static-unit">Hz</span>
+                            </div>
+                        </div>
                     </div>
                 </div>
 
-                <div class="form-group">
-                    <label>V<sub>BE</sub> (Base-Emitter Voltage)</label>
-                    <div class="input-with-unit">
-                        <input type="number" step="any" name="vbe" placeholder="0.7" required>
-                        <span class="static-unit">V</span>
-                    </div>
-                </div>
-
-                <button type="submit" class="btn-calc">
+                <button type="submit" id="submit-btn" class="btn-calc">
                     <i class="fas fa-calculator"></i> Calculate DC Bias
                 </button>
             </form>
         </section>
 
-        <!-- Circuit Diagram -->
         <section class="card circuit-card">
             <div class="card-header">
                 <i class="fas fa-project-diagram"></i>
@@ -164,13 +288,12 @@
             </div>
         </section>
 
-        <!-- Results -->
         <section class="card results-card">
             <div class="card-header">
                 <i class="fas fa-chart-line"></i>
-                <h2>DC Bias Results</h2>
+                <h2>DC Bias Results — Analytical reference (Lab 3)</h2>
             </div>
-            
+
             <div class="results-body">
                 {% if results and not results.error %}
                 <div class="results-list">
@@ -178,7 +301,7 @@
                     <div class="result-item"><span>V<sub>E</sub></span><strong>{{ results.ve }} V</strong></div>
                     <div class="result-item"><span>V<sub>C</sub></span><strong>{{ results.vc }} V</strong></div>
                     <div class="result-item"><span>V<sub>CE</sub></span><strong>{{ results.vce }} V</strong></div>
-                    <div class="result-item"><span>I<sub>B</sub></span><strong>{{ results.ib }} µA</strong></div>
+                    <div class="result-item"><span>I<sub>B</sub></span><strong>{{ results.ib }} &micro;A</strong></div>
                     <div class="result-item"><span>I<sub>C</sub></span><strong>{{ results.ic }} mA</strong></div>
                     <div class="result-item"><span>I<sub>E</sub></span><strong>{{ results.ie }} mA</strong></div>
                 </div>
@@ -194,6 +317,41 @@
                 {% endif %}
             </div>
         </section>
+
+        {% if spice_result %}
+        <section class="card spice-card">
+            <div class="card-header">
+                <i class="fas fa-microchip"></i>
+                <h2>SPICE Simulation Results</h2>
+            </div>
+            <div class="results-body">
+                <div class="engine-badge status-{{ spice_result.status }}">
+                    Engine: {{ spice_result.engine }} · Model: {{ spice_result.model or 'n/a' }} · Status: {{ spice_result.status }}
+                </div>
+
+                {% if spice_result.status == 'error' %}
+                    <p class="error-msg">{{ spice_result.error }}</p>
+                {% else %}
+                    {% if spice_result.values %}
+                    <div class="spice-values">
+                        <div class="result-item"><span>V<sub>B</sub></span><strong>{{ spice_result.values.vb }} V</strong></div>
+                        <div class="result-item"><span>V<sub>E</sub></span><strong>{{ spice_result.values.ve }} V</strong></div>
+                        <div class="result-item"><span>V<sub>C</sub></span><strong>{{ spice_result.values.vc }} V</strong></div>
+                        <div class="result-item"><span>V<sub>CE</sub></span><strong>{{ spice_result.values.vce }} V</strong></div>
+                        <div class="result-item"><span>I<sub>C</sub></span><strong>{{ spice_result.values.ic_ma }} mA</strong></div>
+                    </div>
+                    {% endif %}
+                    {% if spice_result.plot %}
+                    <div class="plot-frame">{{ spice_result.plot|safe }}</div>
+                    {% endif %}
+                    <details class="netlist-details">
+                        <summary>Show generated netlist</summary>
+                        <pre>{{ spice_result.netlist }}</pre>
+                    </details>
+                {% endif %}
+            </div>
+        </section>
+        {% endif %}
     </main>
 </body>
 </html>

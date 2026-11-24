@@ -193,3 +193,91 @@ body {
     color: #dc2626;
     font-weight: bold;
 }
+
+/* Lab 04 additions */
+.analysis-panel {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.panel-hint {
+    font-size: 12px;
+    color: #486275;
+    background: #eef5ff;
+    border-left: 4px solid #4d7fa9;
+    padding: 9px 12px;
+    border-radius: 4px;
+    margin: 0;
+}
+
+.spice-grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 14px 16px;
+}
+
+.engine-badge {
+    font-size: 13px;
+    font-weight: 600;
+    padding: 10px 12px;
+    border-radius: 6px;
+    border: 1px solid #a7f3d0;
+    background: #ecfdf5;
+    color: #065f46;
+    margin-bottom: 14px;
+}
+
+.engine-badge.status-error {
+    background: #fef2f2;
+    border-color: #fecaca;
+    color: #991b1b;
+}
+
+.spice-values {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    margin-bottom: 16px;
+}
+
+.plot-frame {
+    border: 1px solid #dce7ee;
+    border-radius: 8px;
+    background: #f9fcfd;
+    overflow-x: auto;
+    margin-bottom: 14px;
+}
+
+.netlist-details {
+    border: 1px solid #e5e7eb;
+    border-radius: 6px;
+    padding: 10px 12px;
+    background: #fcfdff;
+    font-size: 13px;
+}
+
+.netlist-details summary {
+    cursor: pointer;
+    font-weight: 600;
+    color: #1e3a8a;
+}
+
+.netlist-details pre {
+    white-space: pre-wrap;
+    overflow-wrap: anywhere;
+    font-size: 12px;
+    line-height: 1.5;
+}
+
+@media (max-width: 760px) {
+    .spice-grid {
+        grid-template-columns: 1fr;
+    }
+    .main-header h1 {
+        font-size: 16px;
+    }
+    .plot-frame svg {
+        min-width: 520px;
+    }
+}
