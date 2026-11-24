@@ -20,6 +20,7 @@ MODEL_NAME = "NPN_GENERIC"
 MODEL_CARD = ".model NPN_GENERIC NPN(BF=100 VAF=100 IS=1e-14 RB=10 RC=1)"
 MODEL_LABEL = "NPN_GENERIC (BF=100, VAF=100, IS=1e-14, RB=10, RC=1)"
 ANALYSES = {"dc", "ac", "tran"}
+NGSPICE_RELATIVE_PATH = Path(".ngspice") / "bin" / "ngspice"
 
 _NUMBER_RE = re.compile(r"[-+]?\d*\.?\d+(?:[eE][-+]?\d+)?")
 
@@ -146,9 +147,24 @@ def build_netlist(params: dict, analysis: str) -> str:
     return "\n".join(lines) + "\n"
 
 
+def resolve_ngspice(project_dir: Path | None = None) -> str | None:
+    """Find ngspice on PATH or in the user-level install created at build time."""
+    from_path = shutil.which("ngspice")
+    if from_path:
+        return from_path
+
+    root = Path(project_dir) if project_dir is not None else Path(__file__).resolve().parent
+    for base in (root, Path.cwd()):
+        candidate = base / NGSPICE_RELATIVE_PATH
+        if candidate.is_file():
+            return str(candidate.resolve())
+    return None
+
+
 def run_ngspice(netlist: str, timeout: float = 20.0) -> dict:
     """Execute ngspice in batch mode in a fresh temporary directory."""
-    if shutil.which("ngspice") is None:
+    ngspice = resolve_ngspice()
+    if ngspice is None:
         return {
             "ok": False,
             "log": "",
@@ -164,11 +180,12 @@ def run_ngspice(netlist: str, timeout: float = 20.0) -> dict:
             netlist_path.write_text(netlist, encoding="utf-8")
 
             completed = subprocess.run(
-                ["ngspice", "-b", "-o", log_path.name, netlist_path.name],
+                [ngspice, "-b", "-o", log_path.name, netlist_path.name],
                 cwd=str(workdir),
                 capture_output=True,
                 text=True,
                 timeout=timeout,
+                shell=False,
                 check=False,
             )
             log = log_path.read_text(encoding="utf-8", errors="replace") if log_path.exists() else ""

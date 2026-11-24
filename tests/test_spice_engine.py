@@ -1,5 +1,8 @@
+import subprocess
+import tempfile
 import unittest
-from unittest.mock import patch
+from pathlib import Path
+from unittest.mock import MagicMock, patch
 
 import spice_engine
 
@@ -118,6 +121,41 @@ class ParserTests(unittest.TestCase):
         self.assertIsNone(out["error"])
         self.assertEqual(len(out["points"]), 4)
         self.assertAlmostEqual(out["points"][-1][1], 21.0)
+
+
+class EngineDiscoveryTests(unittest.TestCase):
+    def test_bundled_binary_is_found_when_path_is_empty(self):
+        with tempfile.TemporaryDirectory() as directory:
+            binary = Path(directory) / ".ngspice" / "bin" / "ngspice"
+            binary.parent.mkdir(parents=True)
+            binary.write_text("fake", encoding="utf-8")
+
+            with patch("spice_engine.shutil.which", return_value=None):
+                found = spice_engine.resolve_ngspice(project_dir=Path(directory))
+
+            self.assertEqual(found, str(binary.resolve()))
+
+    def test_run_uses_bundled_binary_without_shell(self):
+        with tempfile.TemporaryDirectory() as directory:
+            binary = Path(directory) / ".ngspice" / "bin" / "ngspice"
+            binary.parent.mkdir(parents=True)
+            binary.write_text("fake", encoding="utf-8")
+            fake_run = MagicMock(
+                return_value=subprocess.CompletedProcess([], 0, stdout="", stderr="")
+            )
+
+            with (
+                patch("spice_engine.resolve_ngspice", return_value=str(binary.resolve())),
+                patch("spice_engine.subprocess.run", fake_run),
+            ):
+                spice_engine.run_ngspice("deck", timeout=7)
+
+            args, kwargs = fake_run.call_args
+            self.assertEqual(args[0][0], str(binary.resolve()))
+            self.assertEqual(args[0][1:3], ["-b", "-o"])
+            self.assertIs(kwargs.get("shell"), False)
+            self.assertEqual(kwargs.get("timeout"), 7)
+            self.assertIn("bjt-spice-", kwargs["cwd"])
 
 
 class ErrorTests(unittest.TestCase):
