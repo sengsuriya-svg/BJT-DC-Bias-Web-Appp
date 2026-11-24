@@ -62,6 +62,26 @@ class ParserTests(unittest.TestCase):
         self.assertIsNone(out["error"])
         self.assertAlmostEqual(out["values"]["vce"], 4.88, places=2)
 
+    def test_parse_dc_reads_ngspice_node_voltage_table(self):
+        log = (
+            "\tNode                                  Voltage\n"
+            "\t----                                  -------\n"
+            "\t----\t-------\n"
+            "\tout                              0.000000e+00\n"
+            "\tsrc                              0.000000e+00\n"
+            "\temi                              1.289352e+00\n"
+            "\tcol                              9.189633e+00\n"
+            "\tbase                             1.949127e+00\n"
+            "\tvcc                              1.200000e+01\n"
+            "\n"
+            "\tSource\tCurrent\n"
+        )
+        out = spice_engine.parse_dc(log, {"rc": 2200.0, "vcc": 12.0})
+        self.assertIsNone(out["error"])
+        self.assertAlmostEqual(out["values"]["vb"], 1.949127, places=4)
+        self.assertAlmostEqual(out["values"]["ve"], 1.289352, places=4)
+        self.assertAlmostEqual(out["values"]["vc"], 9.189633, places=4)
+
     def test_parse_ac_reads_frequency_gain_phase(self):
         log = (
             "Index frequency vdb(out) vp(out)\n"

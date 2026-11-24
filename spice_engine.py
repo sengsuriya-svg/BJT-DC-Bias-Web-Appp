@@ -114,7 +114,9 @@ def build_netlist(params: dict, analysis: str) -> str:
     t_step = t_stop / 200.0
 
     analysis_lines = {
-        "dc": [".op", ".print op v(base) v(emit) v(col)"],
+        # .op already prints the node-voltage table. An explicit ".print op"
+        # line is rejected by ngspice (it warns about each node name).
+        "dc": [".op"],
         "ac": [".ac dec 20 1 10Meg", ".print ac frequency vdb(out) vp(out)"],
         "tran": [
             f".tran {_fmt(t_step)} {_fmt(t_stop)}",
@@ -219,11 +221,44 @@ def _table_rows(log: str, required: tuple[str, ...]) -> list[list[float]]:
     return rows
 
 
+def _op_node_voltages(log: str) -> dict[str, float]:
+    """Read the "Node / Voltage" table printed by a real ngspice .op run."""
+    values: dict[str, float] = {}
+    in_table = False
+    for line in log.splitlines():
+        stripped = line.strip()
+        lowered = stripped.lower()
+        if lowered.startswith("node") and "voltage" in lowered:
+            in_table = True
+            continue
+        if not in_table:
+            continue
+        if lowered.startswith("source") or lowered.startswith("current"):
+            break
+        parts = stripped.split()
+        if len(parts) != 2:
+            continue
+        try:
+            values[parts[0].lower()] = float(parts[1])
+        except ValueError:
+            continue
+    return values
+
+
 def parse_dc(log: str, params: dict) -> dict:
     """Return DC operating-point values from ngspice output."""
     vb = _extract_named(log, "v(base)")
     ve = _extract_named(log, "v(emit)")
     vc = _extract_named(log, "v(col)")
+
+    nodes = _op_node_voltages(log)
+    if vb is None:
+        vb = nodes.get("base")
+    if ve is None:
+        ve = nodes.get("emi")
+    if vc is None:
+        vc = nodes.get("col")
+
     if None in (vb, ve, vc):
         rows = _table_rows(log, ("v(base)", "v(emit)", "v(col)"))
         if rows:
