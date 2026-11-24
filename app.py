@@ -67,9 +67,14 @@ def index():
             }
             spice_result = simulate(spice_form, analysis)
             spice_result['plot'] = None
+            # Keep dc values under dc_values too; Jinja resolves .values to the
+            # dict method, which hides a plain dict key named "values".
+            spice_result['dc_values'] = spice_result.get('values')
             if spice_result['status'] == 'success' and analysis == 'ac':
+                # AC points are [frequency, gain_dB, phase_deg]; plot gain only
+                # because dB and degrees must not share one y-axis.
                 spice_result['plot'] = line_svg(
-                    spice_result['points'],
+                    [point[:2] for point in spice_result['points']],
                     'Frequency (Hz)', 'Gain (dB)',
                     'AC frequency response (ngspice)',
                     ['Gain (dB)'],

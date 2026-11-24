@@ -43,7 +43,7 @@ def line_svg(points, x_label, y_label, title, series_labels=None):
     def py(y):
         return _BOTTOM - (y - y_min) / (y_max - y_min) * (_BOTTOM - _TOP)
 
-    labels = series_labels or [f"Series {i + 1}" for i in range(series_count)]
+    labels = list(series_labels or [])
     parts = [
         f'<svg viewBox="0 0 {_WIDTH} {_HEIGHT}" role="img" '
         'style="width:100%;height:auto;font-family:Tahoma,Arial,sans-serif">',
@@ -64,6 +64,7 @@ def line_svg(points, x_label, y_label, title, series_labels=None):
     for index in range(series_count):
         coords = " ".join(f"{px(row[0]):.2f},{py(row[index + 1]):.2f}" for row in numeric_rows)
         color = _COLORS[index % len(_COLORS)]
+        label = labels[index] if index < len(labels) else f"Series {index + 1}"
         parts.append(
             f'<polyline points="{coords}" fill="none" stroke="{color}" '
             'stroke-width="2.2" stroke-linejoin="round"/>'
@@ -71,7 +72,7 @@ def line_svg(points, x_label, y_label, title, series_labels=None):
         parts.append(
             f'<rect x="{_LEFT + index * 110}" y="8" width="10" height="10" fill="{color}"/>'
             f'<text x="{_LEFT + index * 110 + 14}" y="17" font-size="11" fill="#526c7f">'
-            f'{escape(str(labels[index]))}</text>'
+            f'{escape(str(label))}</text>'
         )
 
     parts.append("</svg>")

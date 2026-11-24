@@ -82,6 +82,23 @@ class ParserTests(unittest.TestCase):
         self.assertEqual(len(out["points"]), 2)
         self.assertAlmostEqual(out["points"][1][2], -0.21)
 
+    def test_parse_ac_skips_repeated_headers_and_keeps_all_rows(self):
+        header = "Index frequency vdb(out) vp(out)"
+        log = "\n".join([
+            header,
+            "----",
+            "1 1.000e+00 -4.20e+00 1.75e+02",
+            "2 1.000e+01 3.10e+00 1.20e+02",
+            header,
+            "----",
+            "3 1.000e+02 1.05e+01 -4.00e+00",
+            "4 1.000e+03 2.10e+01 -1.65e+02",
+        ])
+        out = spice_engine.parse_ac(log)
+        self.assertIsNone(out["error"])
+        self.assertEqual(len(out["points"]), 4)
+        self.assertAlmostEqual(out["points"][-1][1], 21.0)
+
 
 class ErrorTests(unittest.TestCase):
     @patch("spice_engine.shutil.which", return_value=None)

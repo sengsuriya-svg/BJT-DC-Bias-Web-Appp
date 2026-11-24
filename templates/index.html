@@ -1,5 +1,9 @@
 <!doctype html>
 <html lang="th">
+{% macro unit_options(field, choices, default) -%}
+{% for value, label in choices %}<option value="{{ value }}"{% if form.get(field, default) == value %} selected{% endif %}>{{ label }}</option>
+{% endfor %}
+{%- endmacro %}
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -80,9 +84,9 @@
                             <div class="input-with-unit">
                                 <input type="number" step="any" name="r1" placeholder="100" value="{{ form.get('r1') or '' }}">
                                 <select name="r1_unit">
-                                    <option value="ohm">&Omega;</option>
-                                    <option value="kohm" selected>k&Omega;</option>
-                                    <option value="mohm">M&Omega;</option>
+                                    <option value="ohm"{% if form.get("r1_unit", "kohm") == "ohm" %} selected{% endif %}>Ω</option>
+                                    <option value="kohm"{% if form.get("r1_unit", "kohm") == "kohm" %} selected{% endif %}>kΩ</option>
+                                    <option value="mohm"{% if form.get("r1_unit", "kohm") == "mohm" %} selected{% endif %}>MΩ</option>
                                 </select>
                             </div>
                         </div>
@@ -91,9 +95,9 @@
                             <div class="input-with-unit">
                                 <input type="number" step="any" name="r2" placeholder="22" value="{{ form.get('r2') or '' }}">
                                 <select name="r2_unit">
-                                    <option value="ohm">&Omega;</option>
-                                    <option value="kohm" selected>k&Omega;</option>
-                                    <option value="mohm">M&Omega;</option>
+                                    <option value="ohm"{% if form.get("r2_unit", "kohm") == "ohm" %} selected{% endif %}>Ω</option>
+                                    <option value="kohm"{% if form.get("r2_unit", "kohm") == "kohm" %} selected{% endif %}>kΩ</option>
+                                    <option value="mohm"{% if form.get("r2_unit", "kohm") == "mohm" %} selected{% endif %}>MΩ</option>
                                 </select>
                             </div>
                         </div>
@@ -105,9 +109,9 @@
                             <div class="input-with-unit">
                                 <input type="number" step="any" name="rb" placeholder="1000" value="{{ form.get('rb') or '' }}">
                                 <select name="rb_unit">
-                                    <option value="ohm">&Omega;</option>
-                                    <option value="kohm" selected>k&Omega;</option>
-                                    <option value="mohm">M&Omega;</option>
+                                    <option value="ohm"{% if form.get("rb_unit", "kohm") == "ohm" %} selected{% endif %}>Ω</option>
+                                    <option value="kohm"{% if form.get("rb_unit", "kohm") == "kohm" %} selected{% endif %}>kΩ</option>
+                                    <option value="mohm"{% if form.get("rb_unit", "kohm") == "mohm" %} selected{% endif %}>MΩ</option>
                                 </select>
                             </div>
                         </div>
@@ -119,9 +123,9 @@
                             <div class="input-with-unit">
                                 <input type="number" step="any" name="rb" placeholder="1000" value="{{ form.get('rb') or '' }}">
                                 <select name="rb_unit">
-                                    <option value="ohm">&Omega;</option>
-                                    <option value="kohm" selected>k&Omega;</option>
-                                    <option value="mohm">M&Omega;</option>
+                                    <option value="ohm"{% if form.get("rb_unit", "kohm") == "ohm" %} selected{% endif %}>Ω</option>
+                                    <option value="kohm"{% if form.get("rb_unit", "kohm") == "kohm" %} selected{% endif %}>kΩ</option>
+                                    <option value="mohm"{% if form.get("rb_unit", "kohm") == "mohm" %} selected{% endif %}>MΩ</option>
                                 </select>
                             </div>
                         </div>
@@ -132,9 +136,9 @@
                         <div class="input-with-unit">
                             <input type="number" step="any" name="rc" placeholder="2.2" value="{{ form.get('rc') or '' }}">
                             <select name="rc_unit">
-                                <option value="ohm">&Omega;</option>
-                                <option value="kohm" selected>k&Omega;</option>
-                                <option value="mohm">M&Omega;</option>
+                                <option value="ohm"{% if form.get("rc_unit", "kohm") == "ohm" %} selected{% endif %}>Ω</option>
+                                <option value="kohm"{% if form.get("rc_unit", "kohm") == "kohm" %} selected{% endif %}>kΩ</option>
+                                <option value="mohm"{% if form.get("rc_unit", "kohm") == "mohm" %} selected{% endif %}>MΩ</option>
                             </select>
                         </div>
                     </div>
@@ -144,9 +148,9 @@
                         <div class="input-with-unit">
                             <input type="number" step="any" name="re" placeholder="1.0" value="{{ form.get('re') or '' }}">
                             <select name="re_unit">
-                                <option value="ohm">&Omega;</option>
-                                <option value="kohm" selected>k&Omega;</option>
-                                <option value="mohm">M&Omega;</option>
+                                <option value="ohm"{% if form.get("re_unit", "kohm") == "ohm" %} selected{% endif %}>Ω</option>
+                                <option value="kohm"{% if form.get("re_unit", "kohm") == "kohm" %} selected{% endif %}>kΩ</option>
+                                <option value="mohm"{% if form.get("re_unit", "kohm") == "mohm" %} selected{% endif %}>MΩ</option>
                             </select>
                         </div>
                     </div>
@@ -169,7 +173,7 @@
                 </div>
 
                 <div id="spice-panel" class="analysis-panel" style="display:none;">
-                    <p class="panel-hint">Reference CE voltage-divider stage. No bypass capacitor. Values are SI-converted before the netlist is written.</p>
+                    <p class="panel-hint">Reference CE voltage-divider stage. No bypass capacitor. Values are SI-converted before the netlist is written. Generic model assumption — not instructor-verified.</p>
                     <div class="spice-grid">
                         <div class="form-group">
                             <label>V<sub>CC</sub></label>
@@ -183,9 +187,9 @@
                             <div class="input-with-unit">
                                 <input type="number" step="any" name="s_r1" placeholder="100" value="{{ form.get('s_r1') or '100' }}">
                                 <select name="s_r1_unit">
-                                    <option value="ohm">&Omega;</option>
-                                    <option value="kohm" selected>k&Omega;</option>
-                                    <option value="mohm">M&Omega;</option>
+                                    <option value="ohm"{% if form.get("s_r1_unit", "kohm") == "ohm" %} selected{% endif %}>Ω</option>
+                                    <option value="kohm"{% if form.get("s_r1_unit", "kohm") == "kohm" %} selected{% endif %}>kΩ</option>
+                                    <option value="mohm"{% if form.get("s_r1_unit", "kohm") == "mohm" %} selected{% endif %}>MΩ</option>
                                 </select>
                             </div>
                         </div>
@@ -194,9 +198,9 @@
                             <div class="input-with-unit">
                                 <input type="number" step="any" name="s_r2" placeholder="22" value="{{ form.get('s_r2') or '22' }}">
                                 <select name="s_r2_unit">
-                                    <option value="ohm">&Omega;</option>
-                                    <option value="kohm" selected>k&Omega;</option>
-                                    <option value="mohm">M&Omega;</option>
+                                    <option value="ohm"{% if form.get("s_r2_unit", "kohm") == "ohm" %} selected{% endif %}>Ω</option>
+                                    <option value="kohm"{% if form.get("s_r2_unit", "kohm") == "kohm" %} selected{% endif %}>kΩ</option>
+                                    <option value="mohm"{% if form.get("s_r2_unit", "kohm") == "mohm" %} selected{% endif %}>MΩ</option>
                                 </select>
                             </div>
                         </div>
@@ -205,9 +209,9 @@
                             <div class="input-with-unit">
                                 <input type="number" step="any" name="s_rc" placeholder="2.2" value="{{ form.get('s_rc') or '2.2' }}">
                                 <select name="s_rc_unit">
-                                    <option value="ohm">&Omega;</option>
-                                    <option value="kohm" selected>k&Omega;</option>
-                                    <option value="mohm">M&Omega;</option>
+                                    <option value="ohm"{% if form.get("s_rc_unit", "kohm") == "ohm" %} selected{% endif %}>Ω</option>
+                                    <option value="kohm"{% if form.get("s_rc_unit", "kohm") == "kohm" %} selected{% endif %}>kΩ</option>
+                                    <option value="mohm"{% if form.get("s_rc_unit", "kohm") == "mohm" %} selected{% endif %}>MΩ</option>
                                 </select>
                             </div>
                         </div>
@@ -216,9 +220,9 @@
                             <div class="input-with-unit">
                                 <input type="number" step="any" name="s_re" placeholder="1" value="{{ form.get('s_re') or '1' }}">
                                 <select name="s_re_unit">
-                                    <option value="ohm">&Omega;</option>
-                                    <option value="kohm" selected>k&Omega;</option>
-                                    <option value="mohm">M&Omega;</option>
+                                    <option value="ohm"{% if form.get("s_re_unit", "kohm") == "ohm" %} selected{% endif %}>Ω</option>
+                                    <option value="kohm"{% if form.get("s_re_unit", "kohm") == "kohm" %} selected{% endif %}>kΩ</option>
+                                    <option value="mohm"{% if form.get("s_re_unit", "kohm") == "mohm" %} selected{% endif %}>MΩ</option>
                                 </select>
                             </div>
                         </div>
@@ -227,9 +231,9 @@
                             <div class="input-with-unit">
                                 <input type="number" step="any" name="s_rl" placeholder="10" value="{{ form.get('s_rl') or '10' }}">
                                 <select name="s_rl_unit">
-                                    <option value="ohm">&Omega;</option>
-                                    <option value="kohm" selected>k&Omega;</option>
-                                    <option value="mohm">M&Omega;</option>
+                                    <option value="ohm"{% if form.get("s_rl_unit", "kohm") == "ohm" %} selected{% endif %}>Ω</option>
+                                    <option value="kohm"{% if form.get("s_rl_unit", "kohm") == "kohm" %} selected{% endif %}>kΩ</option>
+                                    <option value="mohm"{% if form.get("s_rl_unit", "kohm") == "mohm" %} selected{% endif %}>MΩ</option>
                                 </select>
                             </div>
                         </div>
@@ -238,9 +242,9 @@
                             <div class="input-with-unit">
                                 <input type="number" step="any" name="s_cin" placeholder="10" value="{{ form.get('s_cin') or '10' }}">
                                 <select name="s_cin_unit">
-                                    <option value="pF">pF</option>
-                                    <option value="nF">nF</option>
-                                    <option value="uF" selected>&micro;F</option>
+                                    <option value="pF"{% if form.get("s_cin_unit", "uF") == "pF" %} selected{% endif %}>pF</option>
+                                    <option value="nF"{% if form.get("s_cin_unit", "uF") == "nF" %} selected{% endif %}>nF</option>
+                                    <option value="uF"{% if form.get("s_cin_unit", "uF") == "uF" %} selected{% endif %}>µF</option>
                                 </select>
                             </div>
                         </div>
@@ -249,9 +253,9 @@
                             <div class="input-with-unit">
                                 <input type="number" step="any" name="s_cout" placeholder="10" value="{{ form.get('s_cout') or '10' }}">
                                 <select name="s_cout_unit">
-                                    <option value="pF">pF</option>
-                                    <option value="nF">nF</option>
-                                    <option value="uF" selected>&micro;F</option>
+                                    <option value="pF"{% if form.get("s_cout_unit", "uF") == "pF" %} selected{% endif %}>pF</option>
+                                    <option value="nF"{% if form.get("s_cout_unit", "uF") == "nF" %} selected{% endif %}>nF</option>
+                                    <option value="uF"{% if form.get("s_cout_unit", "uF") == "uF" %} selected{% endif %}>µF</option>
                                 </select>
                             </div>
                         </div>
@@ -332,13 +336,13 @@
                 {% if spice_result.status == 'error' %}
                     <p class="error-msg">{{ spice_result.error }}</p>
                 {% else %}
-                    {% if spice_result.values %}
+                    {% if spice_result.dc_values %}
                     <div class="spice-values">
-                        <div class="result-item"><span>V<sub>B</sub></span><strong>{{ spice_result.values.vb }} V</strong></div>
-                        <div class="result-item"><span>V<sub>E</sub></span><strong>{{ spice_result.values.ve }} V</strong></div>
-                        <div class="result-item"><span>V<sub>C</sub></span><strong>{{ spice_result.values.vc }} V</strong></div>
-                        <div class="result-item"><span>V<sub>CE</sub></span><strong>{{ spice_result.values.vce }} V</strong></div>
-                        <div class="result-item"><span>I<sub>C</sub></span><strong>{{ spice_result.values.ic_ma }} mA</strong></div>
+                        <div class="result-item"><span>V<sub>B</sub></span><strong>{{ spice_result.dc_values.vb }} V</strong></div>
+                        <div class="result-item"><span>V<sub>E</sub></span><strong>{{ spice_result.dc_values.ve }} V</strong></div>
+                        <div class="result-item"><span>V<sub>C</sub></span><strong>{{ spice_result.dc_values.vc }} V</strong></div>
+                        <div class="result-item"><span>V<sub>CE</sub></span><strong>{{ spice_result.dc_values.vce }} V</strong></div>
+                        <div class="result-item"><span>I<sub>C</sub></span><strong>{{ spice_result.dc_values.ic_ma }} mA</strong></div>
                     </div>
                     {% endif %}
                     {% if spice_result.plot %}

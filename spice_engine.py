@@ -207,7 +207,9 @@ def _table_rows(log: str, required: tuple[str, ...]) -> list[list[float]]:
         try:
             values = [float(part) for part in parts]
         except ValueError:
-            if rows:
+            # Repeated headers and dashed page separators are part of the same
+            # table; any other non-numeric line marks the end of the table.
+            if rows and not set(stripped) <= set("-= "):
                 break
             continue
         if len(values) >= 4 and float(values[0]).is_integer():
