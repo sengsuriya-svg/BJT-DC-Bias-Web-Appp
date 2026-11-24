@@ -31,4 +31,4 @@ Environment notes:
 - The deployed Render site still serves the older Lab 03 build after `a0948fd` and `75c671c` were pushed; the user handles deploy separately.
 - Render must install ngspice via the Build Command in [`README.md`](../README.md) for B2–B6 to work there. The local verification used a Windows portable binary, not the Render apt package; the exact apt package version on Render is unverified.
 - AC sweep is fixed at 1 Hz–10 MHz and does not follow the source-frequency input (documented above).
-- Reviewer findings fixed after `a0948fd` (AC 3-column plotting crash, paginated parser truncation, Jinja `dict.values` collision, unit-selector reset, missing model-assumption text) and the real-ngspice `.op` parser fix are all pushed in `75c671c` plus the current working tree.
+- Reviewer findings fixed after `a0948fd` (AC 3-column plotting crash, paginated parser truncation, Jinja `dict.values` collision, unit-selector reset, missing model-assumption text) were pushed in `75c671c`; the real-ngspice `.op` parser fix, Render Build Command and B2–B6 evidence were pushed in `6c4a716`.
