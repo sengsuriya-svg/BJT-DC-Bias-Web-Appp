@@ -1,3 +1,12 @@
+---
+title: BJT CE Amplifier Simulator
+emoji: ⚡
+colorFrom: blue
+colorTo: indigo
+sdk: docker
+app_port: 7860
+---
+
 # BJT-DC-Bias-Web-Appp
 
 Flask web app for ENG29 2121. The Lab 3 analytical DC-bias calculator is preserved, and Lab 04 adds a reference Common-Emitter amplifier simulator driven by an external ngspice process.
@@ -23,6 +32,23 @@ python -m flask --app app run
 SPICE modes need an `ngspice` executable. The app looks on `PATH` first, then in `.ngspice/bin/ngspice` inside the project (the location created by the Render build script). If neither exists, the app shows an explicit error and no plot — it never returns a fake success.
 
 On Windows, download the installer from the [ngspice download page](https://ngspice.sourceforge.io/download.html), install it, and add the install folder to `PATH`.
+
+### Deploying with Docker (recommended: Hugging Face Spaces, free)
+
+The included `Dockerfile` installs `ngspice` from the Debian package during the **Docker image build**, where root access is available. This avoids the permission problem of Render's free Native runtime entirely. It serves the app with `gunicorn` on `0.0.0.0:${PORT:-7860}`, which matches Hugging Face Spaces (`7860`) and Render Docker (`$PORT`).
+
+For a public URL on Hugging Face Spaces:
+
+1. Sign in to Hugging Face → **New → Space** → owner: you, SDK: **Docker**, visibility: **Public** → create the Space.
+2. If the Space is empty, push this repository to it (replace the placeholders):
+   ```bash
+   git remote add space https://huggingface.co/spaces/<YOUR_USER>/<YOUR_SPACE>
+   git push space main
+   ```
+   The `README.md` frontmatter already declares `sdk: docker` and `app_port: 7860`.
+3. Wait for **Building → Running**, then open `https://huggingface.co/spaces/<YOUR_USER>/<YOUR_SPACE>` and submit a SPICE analysis. The badge must show `Engine: ngspice` and `Status: success`.
+
+The same `Dockerfile` also works on a **Render Docker Web Service** if you prefer to stay on Render; create a new Docker service from this repo and leave its Build/Start Commands at the Docker defaults.
 
 ### Deploying on Render (free / Native runtime)
 
@@ -70,6 +96,6 @@ The suite covers validation, netlist generation, parsers, engine-missing and emp
 ## Current limitations
 
 - No starter kit was provided, so no instructor-verified BJT model exists here.
-- B2–B6 were executed locally with a portable Windows ngspice 47 binary on `PATH`; see [`docs/validation.md`](docs/validation.md). Render installs ngspice 41 from conda-forge via the Build Command; that build is not verified locally because it is a Linux binary.
+- B2–B6 were executed locally with a portable Windows ngspice 47 binary on `PATH`; see [`docs/validation.md`](docs/validation.md). The Docker image installs Debian's `ngspice` package, and the Render Native Build Command installs ngspice 41 from conda-forge; neither Linux build is verified locally.
 - Only the reference voltage-divider CE stage is simulated. Fixed/Emitter bias remain analytical only.
-- No emitter bypass capacitor, no free-form circuit editor, and no `render.yaml` in this repository — the Render service is configured in its Dashboard using the Build Command documented above.
+- No emitter bypass capacitor, no free-form circuit editor, and no `render.yaml` in this repository — deployment is either the included `Dockerfile` or the Render Dashboard Build Command documented above.
